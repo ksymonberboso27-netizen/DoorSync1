@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DoorSync</title>
+    <link rel="stylesheet" href="styles.css?v=20261002-1">
+  </head>
+  <body>
+    <section id="loginScreen" class="login-screen">
+      <div class="login-panel">
+        <div class="brand-block login-brand">
+          <div class="brand-mark" aria-hidden="true">D</div>
+          <div>
+            <h1>DoorSync</h1>
+            <p>Campus access coordination</p>
+          </div>
+        </div>
+
+        <div class="login-copy">
+          <p class="eyebrow">Sign in</p>
+          <h2>Welcome back</h2>
+          <p>Your campus, connected.</p>
+        </div>
+
+        <form id="loginForm" class="login-form">
+          <label class="field-label" for="loginEmail">Email address</label>
+          <input id="loginEmail" type="email" autocomplete="email" placeholder="name@nu-baliwag.edu.ph" required>
+
+          <label class="field-label" for="loginPassword">Password</label>
+          <input id="loginPassword" type="password" autocomplete="current-password" required>
+
+          <p id="loginError" class="login-error" role="alert"></p>
+
+          <button class="primary-button" type="submit">Sign in</button>
+        </form>
+      </div>
+    </section>
+
+    <div id="appShell" class="app-shell hidden">
+      <aside class="sidebar">
+        <div class="brand-block">
+          <div class="brand-mark" aria-hidden="true">D</div>
+          <div>
+            <h1>DoorSync</h1>
+            <p>Campus access coordination</p>
+          </div>
+        </div>
+
+        <nav class="role-tabs" aria-label="Role views">
+          <button class="role-tab active" type="button" data-role="student">
+            <span aria-hidden="true">⌂</span>
+            Student
+          </button>
+          <button class="role-tab" type="button" data-role="professor">
+            <span aria-hidden="true">▣</span>
+            Professor
+          </button>
+          <button class="role-tab" type="button" data-role="personnel">
+            <span aria-hidden="true">✓</span>
+            Personnel
+          </button>
+        </nav>
+
+        <section class="sidebar-panel">
+          <h2>Signed in</h2>
+          <div id="signedInUser" class="signed-in-user"></div>
+        </section>
+
+        <section class="sidebar-panel">
+          <h2>System status</h2>
+          <dl class="status-stack">
+            <div>
+              <dt>Locked rooms</dt>
+              <dd id="lockedRoomCount">0</dd>
+            </div>
+            <div id="pendingRequestSummary" class="hidden">
+              <dt>Pending requests</dt>
+              <dd id="pendingRequestCount">0</dd>
+            </div>
+            <div>
+              <dt>Available professors</dt>
+              <dd id="availableProfessorCount">0</dd>
+            </div>
+          </dl>
+        </section>
+
+        <button id="logoutButton" class="ghost-button" type="button">Log out</button>
+        <button id="resetData" class="ghost-button" type="button">Reset demo data</button>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow" id="roleEyebrow">Student view</p>
+            <h2 id="pageTitle">Your tracked rooms</h2>
+          </div>
+          <div class="clock-card">
+            <span id="todayLabel"></span>
+            <strong id="timeLabel"></strong>
+          </div>
+        </header>
+
+        <section id="toast" class="toast" aria-live="polite" aria-atomic="true"></section>
+
+        <section id="studentView" class="view active" aria-labelledby="pageTitle">
+          <div class="section-heading">
+            <div>
+              <h3>All classrooms</h3>
+            </div>
+          </div>
+          <div id="studentRooms" class="room-status-grid"></div>
+
+          <div class="section-heading">
+            <div>
+              <h3>Professor availability</h3>
+            </div>
+          </div>
+          <div id="studentProfessors" class="card-grid"></div>
+        </section>
+
+        <section id="professorView" class="view" aria-labelledby="pageTitle">
+          <div class="action-layout">
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <h3>Availability</h3>
+                  <p>Set your current faculty office status.</p>
+                </div>
+              </div>
+              <label class="field-label" for="professorSelect">Professor</label>
+              <select id="professorSelect"></select>
+              <div class="toggle-row">
+                <button id="setAvailable" class="status-action" type="button">Available</button>
+                <button id="setOccupied" class="status-action warning" type="button">Occupied</button>
+              </div>
+              <div id="selectedProfessorStatus" class="selected-status"></div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <h3>Request room unlock</h3>
+                  <p>Requests open 15 minutes before class and close when class starts. Philippine time (UTC+8).</p>
+                </div>
+              </div>
+              <label class="field-label" for="roomSelect">Scheduled class</label>
+              <select id="roomSelect"></select>
+              <button id="notifyPersonnel" class="primary-button" type="button">Notify personnel</button>
+              <p id="requestWindowStatus" class="request-window" role="status"></p>
+            </section>
+          </div>
+
+          <div class="section-heading">
+            <div>
+              <h3>Class schedule</h3>
+              <p>Today and the next seven days · Philippine time (UTC+8) · Sample timetable</p>
+            </div>
+          </div>
+          <div id="professorSchedule" class="schedule-list"></div>
+
+          <div class="section-heading">
+            <div>
+              <h3>Recent activity</h3>
+              <p>Status changes and unlock request updates.</p>
+            </div>
+          </div>
+          <div id="professorActivity" class="timeline"></div>
+        </section>
+
+        <section id="personnelView" class="view" aria-labelledby="pageTitle">
+          <div class="action-layout">
+            <section>
+              <div class="section-heading flush">
+                <div>
+                  <h3>Pending unlock requests</h3>
+                  <p>Requests are created by professors and resolved by personnel.</p>
+                </div>
+              </div>
+              <div id="pendingRequests" class="request-list"></div>
+            </section>
+
+            <aside class="panel">
+              <div class="panel-header">
+                <div>
+                  <h3>Room detail</h3>
+                  <p id="roomDetailHelp">Select a request to inspect the target room.</p>
+                </div>
+              </div>
+              <div id="roomDetail" class="room-detail empty-state">No room selected.</div>
+            </aside>
+          </div>
+
+          <div class="section-heading">
+            <div>
+              <h3>Unlocked rooms</h3>
+              <p>Mark rooms locked again after classes or room checks.</p>
+            </div>
+          </div>
+          <div id="unlockedRooms" class="request-list compact"></div>
+
+          <div class="section-heading">
+            <div>
+              <h3>Completed today</h3>
+              <p>Resolved requests stay visible for daily review.</p>
+            </div>
+          </div>
+          <div id="completedRequests" class="request-list compact"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="data.js?v=20261002-1"></script>
+    <script src="schedule.js?v=20261002-1"></script>
+    <script src="app.js?v=20261002-1"></script>
+  </body>
+</html>
